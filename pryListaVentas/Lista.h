@@ -1,5 +1,9 @@
-﻿#include "Nodo.h"
+﻿#pragma once
+#include "Nodo.h"
 #include <functional>
+#include <string>
+using namespace std;
+
 typedef unsigned int uint;
 template <class T>
 class Lista {
@@ -11,7 +15,7 @@ private:
 
 public:
     Lista() : ini(nullptr), lon(0) { nodo = new Nodo<T>(); }
-    ~Lista();
+    ~Lista() { while (lon > 0) eliminaInicial(); }
     /*Lista() {
         nodo = new Nodo<T>();
     };*/
@@ -65,21 +69,20 @@ bool Lista<T>::esVacia() {
 template <class T>
 void Lista<T>::agregaInicial(T elem) {
     Nodo<T>* nuevo = new Nodo<T>(elem);
-    if (nuevo != nullptr) {
-        ini = nuevo;
-        lon++;
-    }
+    if (!nuevo) return;
+    nuevo->set_Sgte(ini);   
+    ini = nuevo;
+    lon++;
 }
+
 template <class T>
 T Lista<T>::buscar(T elem) {
     Nodo<T>* aux = ini;
     while (aux != nullptr) {
-        if (comparar(aux->elem, elem) == 0) {
-            return aux->elem;
-        }
-        aux = aux->sgte;
+        if (aux->get_Elem() == elem) return aux->get_Elem(); // == para punteros
+        aux = aux->get_Sgte();
     }
-    return 0;
+    return nullptr;
 }
 
 template <class T>
@@ -111,17 +114,30 @@ template <class T>
 void Lista<T>::eliminaInicial() {
     if (lon > 0) {
         Nodo<T>* aux = ini;
-        ini = ini->sgte;
+        ini = ini->get_Sgte();  
         delete aux;
         lon--;
     }
 }
 
+
 template <class T>
 void Lista<T>::eliminaPos(uint pos) {
+    if (pos >= lon) return;
+    if (pos == 0) { eliminaInicial(); return; }
+    Nodo<T>* prev = ini;
+    for (uint i = 0; i < pos - 1; ++i) prev = prev->get_Sgte();
+    Nodo<T>* target = prev->get_Sgte();
+    prev->set_Sgte(target->get_Sgte());  
+    delete target;
+    lon--;
 }
+
+
 template <class T>
 void Lista<T>::eliminaFinal() {
+    if (lon == 0) return;
+    eliminaPos(lon - 1);
 }
 
 template <class T>
@@ -133,42 +149,41 @@ void Lista<T>::modificarInicial(T elem) {
 
 template <class T>
 void Lista<T>::modificarPos(T elem, uint pos) {
-    if (pos >= 0 && pos < lon) {
+    if (pos < lon) {
         Nodo<T>* aux = ini;
-        for (int i = 0; i < pos; i++) {
-            aux = aux->sgte;
-        }
-        aux->elem = elem;
+        for (uint i = 0; i < pos; ++i) aux = aux->get_Sgte();  
+        aux->set_Elem(elem);                                   
     }
 }
+
+
 template <class T>
 void Lista<T>::modificarFinal(T elem) {
-    modificar(elem, lon - 1);
+    modificarPos(elem, lon - 1);
 }
 
 template <class T>
-T Lista<T>::obtenerInicial() {
-    return obtenerPos(0);
+void Lista<T>::modificarInicial(T elem) {
+    if (lon > 0) ini->set_Elem(elem);
 }
+
 
 
 template <class T>
 T Lista<T>::obtenerPos(uint pos) {
-    if (pos >= 0 && pos < lon) {
+    if (pos < lon) {
         Nodo<T>* aux = ini;
-        for (int i = 0; i < pos; i++) {
-            aux = aux->get_Sgte();
-        }
+        for (uint i = 0; i < pos; ++i) aux = aux->get_Sgte();
         return aux->get_Elem();
     }
-    else {
-        return NULL;
-    }
+    return T();  // en listas de punteros => nullptr
 }
+
 template <class T>
 T Lista<T>::obtenerFinal() {
     return obtenerPos(lon - 1);
 }
+
 
 template <class T>
 void Lista<T>::agregar(T d) //100

@@ -1,53 +1,45 @@
+#pragma once
 #include <iostream>
 #include <string>
 using namespace std;
+
 class CProducto
 {
 private:
-	//Propiedades o Atributos
-	string aCodProducto;
-	string aProducto;
-	int aStock;
-	float aPrecio;
+    //Propiedades o Atributos
+    string aCodProducto;
+    string aProducto;
+    int aStock;
+    float aPrecio;
+
 public:
-	//Constructores y Destructores
-	CProducto()
-	{
-		this->aCodProducto = "";
-		this->aProducto = "";
-		this->aStock = 0;
-		this->aPrecio = 0;
-	}
-	CProducto(string pCodProducto, string pProducto, int pStock, float pPrecio)
-	{
-		this->aCodProducto = pCodProducto;
-		this->aProducto = pProducto;
-		this->aStock = pStock;
-		this->aPrecio = pPrecio;
-	}
-	~CProducto() {}
+    //Constructores y Destructor
+    CProducto() : aCodProducto(""), aProducto(""), aStock(0), aPrecio(0.0f) {}
+    CProducto(const string& pCodProducto, const string& pProducto, int pStock, float pPrecio)
+        : aCodProducto(pCodProducto), aProducto(pProducto), aStock(pStock), aPrecio(pPrecio) {
+    }
+    ~CProducto() = default;
 
-	//Métodos Setter/Getter
-	//SET
-	void setCodProducto(string pCodProducto) { this->aCodProducto = pCodProducto; }
-	void setProducto(string pProducto) { this->aProducto = pProducto; }
-	void setStock(int pStock) { this->aStock = pStock; }
-	void setPrecio(float pPrecio) { this->aPrecio = pPrecio; }
-	//GET
-	string getCodProducto() { return this->aCodProducto; }
-	string getProducto() { return this->aProducto; }
-	int getStock() { return this->aStock; }
-	float getPrecio() { return this->aPrecio; }
+    // SET
+    void setCodProducto(const string& pCodProducto) { aCodProducto = pCodProducto; }
+    void setProducto(const string& pProducto) { aProducto = pProducto; }
+    void setStock(int pStock) { aStock = pStock; }
+    void setPrecio(float pPrecio) { aPrecio = pPrecio; }
 
-	//Métodos de Servicio
-	string toString()
-	{
-		string cadena = "\nCod. Producto: " + aCodProducto +
-			" Producto: " + aProducto +
-			" Stock: " + to_string(aStock) +
-			" Precio: " + to_string(aPrecio);
-		return cadena;
-	}
+    // GET  (todos const)
+    const string& getCodProducto() const { return aCodProducto; }
+    const string& getProducto() const { return aProducto; }
+    int getStock() const { return aStock; }
+    float getPrecio() const { return aPrecio; }
 
-	
+    // Método de Servicio (const)
+    string toString() const {
+        string cadena = "\nCod. Producto: " + aCodProducto +
+            " Producto: " + aProducto +
+            " Stock: " + to_string(aStock) +
+            " Precio: " + to_string(aPrecio);
+        return cadena;
+    }
+
+
 };

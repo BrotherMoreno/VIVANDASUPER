@@ -1,8 +1,22 @@
 #define ARCHIVO_PRODUCTOS "Productos.txt"
 #define ARCHIVO_VENDEDORES "Vendedores.txt"
+#define ARCHIVO_BOLETAS "Boletas.txt"
 
+
+#include "CProducto.h"
+#include "CVendedor.h"
 #include "CBoleta.h"
+#include "CUsuario.h"
+#include "CCliente.h"
 #include "Lista.h"
+#include "Ordenamiento.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+
+using namespace std;
 
 //Declarando las variables Globales
 Lista<CProducto*>* lst_productos = new Lista<CProducto*>();
@@ -17,12 +31,18 @@ void RegistrarBoleta();
 void ListarProductos();
 void ListarVendedores();
 void ListarBoletas();
+void EditarProducto(const CVendedor* vendedor);
+void EliminarProducto(const CVendedor* vendedor);
+void GuardarProductosArchivoCompleto(string nombreArchivo, Lista<CProducto*>* lista);
+void GuardarBoletaTxt(CBoleta* b, const string& nombreArchivo);
 CProducto* BuscarProducto(string);
 CVendedor* BuscarVendedor(string);
 Lista<CProducto*>* CargarProductos(string);
 Lista<CVendedor*>* CargarVendedores(string);
 void AgregarProductoArchivo(string, CProducto*);
 void AgregarVendedorArchivo(string, CVendedor*);
+void MostrarProductosOrdenadosPorPrecio(bool asc);
+
 
 void RegistrarProducto()
 {
@@ -172,6 +192,120 @@ void ListarBoletas()
 	cout << endl;
 }
 
+inline CVendedor* SolicitarVendedor() {
+	cout << "Ingrese Cod. Vendedor: ";
+	string cod; cin >> cod;
+	return BuscarVendedor(cod);
+}
+
+void GuardarProductosArchivoCompleto(string nombreArchivo, Lista<CProducto*>* lista) {
+	ofstream archivo(nombreArchivo, ios::trunc); // reescribe todo
+	if (!archivo.is_open()) {
+		cerr << "No se pudo abrir el archivo: " << nombreArchivo << endl;
+		return;
+	}
+	for (int i = 0; i < lista->longitud(); ++i) {
+		CProducto* p = lista->obtenerPos(i);
+		if (!p) continue;
+		if (i > 0) archivo << '\n';
+		archivo << p->getCodProducto() << " "
+			<< p->getProducto() << " "
+			<< p->getStock() << " "
+			<< p->getPrecio();
+	}
+	archivo.close();
+}
+
+void EditarProducto(const CVendedor* vendedor) {
+	if (!vendedor) { cout << "Acceso denegado.\n"; return; }
+	cout << "\n=== EDITAR PRODUCTO (Solo Vendedor) ===\n";
+	cout << "Cod. Producto a editar: ";
+	string code; cin >> code;
+
+	// lambda para buscar índice
+	auto findIndex = [&](const string& c)->int {
+		for (int i = 0; i < lst_productos->longitud(); ++i) {
+			CProducto* p = lst_productos->obtenerPos(i);
+			if (p && p->getCodProducto() == c) return i;
+		}
+		return -1;
+		};
+	int idx = findIndex(code);
+	if (idx < 0) { cout << "No existe el producto.\n"; return; }
+
+	CProducto* p = lst_productos->obtenerPos(idx);
+	cout << "Actual: " << p->toString() << "\n";
+
+	cout << "Campo a editar: 1)Nombre  2)Stock  3)Precio : ";
+	int op; cin >> op;
+
+	if (op == 1) {
+		cout << "Nuevo nombre: ";
+		string nombre; cin >> nombre;
+		p->setProducto(nombre);
+	}
+	else if (op == 2) {
+		cout << "Nuevo stock: ";
+		int s; cin >> s;
+		p->setStock(s);
+	}
+	else if (op == 3) {
+		cout << "Nuevo precio: ";
+		float pr; cin >> pr;
+		p->setPrecio(pr);
+	}
+	else {
+		cout << "Opción inválida.\n"; return;
+	}
+
+	// Persistir lista completa tras edición
+	GuardarProductosArchivoCompleto(ARCHIVO_PRODUCTOS, lst_productos);
+	cout << "Producto actualizado: " << p->toString() << "\n";
+}
+
+void EliminarProducto(const CVendedor* vendedor) {
+	if (!vendedor) { cout << "Acceso denegado.\n"; return; }
+	cout << "\n=== ELIMINAR PRODUCTO (Solo Vendedor) ===\n";
+	cout << "Cod. Producto a eliminar: ";
+	string code; cin >> code;
+
+	// buscar índice con lambda
+	int idx = -1;
+	auto match = [&](CProducto* p) { return p && p->getCodProducto() == code; };
+	for (int i = 0; i < lst_productos->longitud(); ++i) {
+		if (match(lst_productos->obtenerPos(i))) { idx = i; break; }
+	}
+	if (idx < 0) { cout << "No existe el producto.\n"; return; }
+
+	// opcional: apilar en Pila<CProducto*> para undo
+	lst_productos->eliminaPos(idx); // requiere el parche en Lista<T>
+	GuardarProductosArchivoCompleto(ARCHIVO_PRODUCTOS, lst_productos);
+	cout << "Producto eliminado y archivo actualizado.\n";
+}
+
+void GuardarBoletaTxt(CBoleta* b, const string& nombreArchivo) {
+	ofstream archivo(nombreArchivo, ios::app);
+	if (!archivo.is_open()) {
+		cerr << "No se pudo abrir " << nombreArchivo << endl; return;
+	}
+	archivo << "Nro: " << b->getNroBoleta()
+		<< " | Fecha: " << b->getFecha()
+		<< " | Cant: " << b->getCantidad()
+		<< " | Monto: " << b->getMonto() << "\n";
+	if (b->getProducto())
+		archivo << "   Producto: " << b->getProducto()->getCodProducto()
+		<< " - " << b->getProducto()->getProducto()
+		<< " x" << b->getCantidad()
+		<< " @ " << b->getProducto()->getPrecio() << "\n";
+	if (b->getVendedor())
+		archivo << "   Vendedor: " << b->getVendedor()->getCodVendedor()
+		<< " - " << b->getVendedor()->getNombres() << " "
+		<< b->getVendedor()->getApellidos() << "\n";
+	archivo << "----------------------------------------\n";
+	archivo.close();
+}
+
+
 CProducto* BuscarProducto(string pCodProducto)
 {
 	for (int i = 0; i < lst_productos->longitud(); i++)
@@ -275,4 +409,23 @@ void AgregarVendedorArchivo(string nombreArchivo, CVendedor* objVendedor) {
 
 	cout << "Vendedor Guardado: " << objVendedor->toString() << endl;
 }
+
+void MostrarProductosOrdenadosPorPrecio(bool asc) {
+	using P = CProducto*;
+	vector<P> v;
+	for (int i = 0; i < lst_productos->longitud(); ++i)
+		v.push_back(lst_productos->obtenerPos(i));
+
+	// comparador con lambda
+	auto cmp = [&](const P& a, const P& b) {
+		return asc ? (a->getPrecio() < b->getPrecio())
+			: (a->getPrecio() > b->getPrecio());
+		};
+	mergeSort(v, cmp);
+
+	cout << "\n=== PRODUCTOS ORDENADOS POR PRECIO (" << (asc ? "ASC" : "DESC") << ") ===\n";
+	for (auto* p : v) cout << p->toString();
+	cout << endl;
+}
+
 

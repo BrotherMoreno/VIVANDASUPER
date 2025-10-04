@@ -1,57 +1,41 @@
+#pragma once
 #include <iostream>
+#include <string>
+#include "CUsuario.h"
 using namespace std;
-class CVendedor
-{
+
+class CVendedor : public Usuario {
 private:
-	//Propiedades o Atributos
-	string aCodVendedor;
-	string aNombres;
-	string aApellidos;
-	string aCargo;
-	string aArea;
+    string aCargo;
+    string aArea;
 public:
-	//Constructores y Destructores
-	CVendedor()
-	{
-		this->aCodVendedor = "";
-		this->aNombres = "";
-		this->aApellidos = "";
-		this->aCargo = "";
-		this->aArea = "";
-	}
-	CVendedor(string pCodVendedor, string pNombres, string pApellidos, string pCargo, string pArea)
-	{
-		this->aCodVendedor = pCodVendedor;
-		this->aNombres = pNombres;
-		this->aApellidos = pApellidos;
-		this->aCargo = pCargo;
-		this->aArea = pArea;
-	}
-	~CVendedor() {}
+    CVendedor() : Usuario(), aCargo(""), aArea("") {}
+    CVendedor(const string& pCodVendedor, const string& pNombres,
+        const string& pApellidos, const string& pCargo, const string& pArea)
+        : Usuario(pCodVendedor, pNombres, pApellidos), aCargo(pCargo), aArea(pArea) {
+    }
 
-	//Metodos Setter/Getter
-	//SET
-	void setCodVendedor(string pCodVendedor) { this->aCodVendedor = pCodVendedor; }
-	void setNombres(string pNombres) { this->aNombres = pNombres; }
-	void setApellidos(string pApellidos) { this->aApellidos = pApellidos; }
-	void setCargo(string pCargo) { this->aCargo = pCargo; }
-	void setArea(string pArea) { this->aArea = pArea; }
-	//GET
-	string getCodVendedor() { return this->aCodVendedor; }
-	string getNombres() { return this->aNombres; }
-	string getApellidos() { return this->aApellidos; }
-	string getCargo() { return this->aCargo; }
-	string getArea() { return this->aArea; }
+    // SET/GET extras
+    void setCodVendedor(const string& v) { setId(v); }
+    void setNombres(const string& v) { Usuario::setNombres(v); }
+    void setApellidos(const string& v) { Usuario::setApellidos(v); }
+    void setCargo(const string& v) { aCargo = v; }
+    void setArea(const string& v) { aArea = v; }
 
-	//Metodos de Servicio
-	string toString()
-	{
-		string cadena = "\nCod. Vendedor: " + aCodVendedor +
-			" Nombres: " + aNombres +
-			" Apellidos: " + aApellidos +
-			" Cargo: " + aCargo +
-			" Area: " + aArea;
-		return cadena;
-	}
-	
+    string getCodVendedor() { return getId(); }
+    string getNombres() { return Usuario::getNombres(); }
+    string getApellidos() { return Usuario::getApellidos(); }
+    string getCargo() { return aCargo; }
+    string getArea() { return aArea; }
+
+    string rol() const override { return "Vendedor"; }
+
+    string toString() {
+        string cadena = "\nCod. Vendedor: " + getId() +
+            " Nombres: " + getNombres() +
+            " Apellidos: " + getApellidos() +
+            " Cargo: " + aCargo +
+            " Area: " + aArea;
+        return cadena;
+    }
 };

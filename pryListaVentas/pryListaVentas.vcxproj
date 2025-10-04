@@ -144,12 +144,17 @@
   <ItemGroup>
     <ClInclude Include="CarritoEnvio.h" />
     <ClInclude Include="CBoleta.h" />
+    <ClInclude Include="CCliente.h" />
+    <ClInclude Include="Cola.h" />
     <ClInclude Include="Controller.h" />
+    <ClInclude Include="CUsuario.h" />
     <ClInclude Include="CVendedor.h" />
     <ClInclude Include="CProducto.h" />
     <ClInclude Include="Funciones.h" />
     <ClInclude Include="Lista.h" />
     <ClInclude Include="Nodo.h" />
+    <ClInclude Include="Ordenamiento.h" />
+    <ClInclude Include="Pila.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
