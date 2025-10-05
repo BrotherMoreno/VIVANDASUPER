@@ -20,6 +20,7 @@ public:
     }
     void mostrarCarrito() const {
         std::cout << "\nProductos en el carrito:\n";
+
         for (const auto& p : productos) {
             std::cout << "Cod: " << p.getCodProducto() << " - " << p.getProducto() << std::endl;
         }

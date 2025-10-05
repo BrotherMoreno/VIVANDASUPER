@@ -24,7 +24,7 @@ Lista<CVendedor*>* lst_vendedores = new Lista<CVendedor*>();
 Lista<CBoleta*>* lst_boletas = new Lista<CBoleta*>();
 
 //Declarando las funciones
-int Menu();
+int menuAdmin();
 void RegistrarProducto();
 void RegistrarVendedor();
 void RegistrarBoleta();
