@@ -147,6 +147,7 @@
     <ClInclude Include="CCliente.h" />
     <ClInclude Include="Cola.h" />
     <ClInclude Include="Controller.h" />
+    <ClInclude Include="CRegistro.h" />
     <ClInclude Include="CUsuario.h" />
     <ClInclude Include="CVendedor.h" />
     <ClInclude Include="CProducto.h" />

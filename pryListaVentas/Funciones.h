@@ -1,4 +1,5 @@
 //IMPLEMENTACION DE LOS MÉTODOS
+
 void Pausar();
 void LimpiarPantalla();
 int menuAdmin()
